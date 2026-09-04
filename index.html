@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Yashar — Digital Creator</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#050505;--bg2:#0A0610;--purple:#7C3AED;--violet:#A855F7;--lavender:#C084FC;--text:#FFFFFF;--muted:#A1A1AA}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:#7C3AED #050505}
+section{scroll-margin-top:80px}
+:target{outline:none!important;-webkit-tap-highlight-color:transparent}
+a,button,div,section{-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none}
+#loader{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s,visibility .8s}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.cursor-dot{position:fixed;width:6px;height:6px;background:rgba(168,85,247,.9);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width .2s,height .2s}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(168,85,247,.4);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
+.cursor-ring.hover{width:56px;height:56px;border-color:rgba(168,85,247,.8)}
+.section-tag{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--violet);font-weight:600;margin-bottom:1rem;display:block}
+.section-title{font-size:clamp(2rem,5vw,4rem);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:1.5rem}
+.section-desc{font-size:1.1rem;color:var(--muted);max-width:540px;line-height:1.7}
+svg{overflow:visible}
+@keyframes loaderDraw{to{stroke-dashoffset:0}}
+@keyframes pulse{to{opacity:.6}}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0)}50%{transform:translate(80px,60px)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,-80px)}}
+@keyframes scrollBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+@keyframes morph{0%,100%{border-radius:60% 40% 30% 70% / 60% 30% 70% 40%}50%{border-radius:30% 60% 70% 40% / 50% 60% 30% 60%}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
+.reveal.active{opacity:1;transform:translateY(0)}
+.reveal-scale{opacity:0;transform:scale(.92);transition:opacity .8s ease,transform .8s ease}
+.reveal-scale.active{opacity:1;transform:scale(1)}
+.skill-card{position:relative;background:rgba(26,8,38,.3);border:1px solid rgba(168,85,247,.12);border-radius:1.25rem;padding:1.75rem;transition:all .4s cubic-bezier(.22,1,.36,1);overflow:hidden;transform-style:preserve-3d}
+.skill-card::before{content:'';position:absolute;inset:-1px;border-radius:1.25rem;padding:1px;background:linear-gradient(135deg,#7C3AED,transparent,var(--violet));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s}
+.skill-card:hover::before{opacity:1}
+.skill-card:hover{transform:translateY(-6px);border-color:rgba(168,85,247,.35);box-shadow:0 20px 60px rgba(168,85,247,.12)}
+.project-card{position:relative;border-radius:1.25rem;overflow:hidden;border:1px solid rgba(168,85,247,.08);transition:all .5s cubic-bezier(.22,1,.36,1)}
+.project-card:hover{transform:translateY(-8px);box-shadow:0 30px 80px rgba(168,85,247,.18)}
+.project-card .overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,5,.95),transparent 60%);opacity:0;transition:opacity .5s;display:flex;align-items:flex-end;padding:2rem}
+.project-card:hover .overlay{opacity:1}
+.project-card img{transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.project-card:hover img{transform:scale(1.08)}
+.btn-magnetic{position:relative;overflow:hidden;transition:all .3s cubic-bezier(.22,1,.36,1)}
+.btn-magnetic::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7C3AED,#A855F7);opacity:0;transition:opacity .3s}
+.btn-magnetic:hover::before{opacity:1}
+.btn-magnetic span{position:relative;z-index:1}
+.btn-magnetic svg{position:relative;z-index:1;transition:transform .3s}
+.btn-magnetic:hover svg{transform:translateX(4px)}
+.btn-outline{border:1px solid rgba(168,85,247,.4);border-radius:9999px;transition:all .3s cubic-bezier(.22,1,.36,1)}
+.btn-outline:hover{border-color:var(--violet);box-shadow:0 0 30px rgba(168,85,247,.25)}
+.scroll-indicator{animation:scrollBounce 2s ease-in-out infinite}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;opacity:.3}
+.noise::after{content:'';position:absolute;inset:0;opacity:.03;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:128px 128px;z-index:1}
+.social-icon{width:48px;height:48px;border-radius:50%;border:1px solid rgba(168,85,247,.2);display:flex;align-items:center;justify-content:center;transition:all .3s;position:relative;overflow:hidden}
+.social-icon svg{display:block;width:20px;height:20px;flex-shrink:0}
+.social-icon:hover{border-color:var(--violet);box-shadow:0 0 20px rgba(168,85,247,.35);transform:translateY(-3px)}
+.section-divider{width:100%;overflow:hidden;line-height:0}
+.nav-top{background:transparent!important;border-bottom:1px solid transparent}
+.nav-scrolled{border-bottom:1px solid rgba(168,85,247,0.08);isolation:isolate}
+.nav-scrolled::before{content:'';position:absolute;inset:0;background:rgba(5,5,5,0.4);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);opacity:1;transition:opacity .4s ease;z-index:-1;pointer-events:none}
+.nav-top::before{content:'';position:absolute;inset:0;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);opacity:0;transition:opacity .4s ease;z-index:-1;pointer-events:none}
+nav{position:fixed;isolation:isolate}
+.cursor-dot,.cursor-ring{display:none}
+@media(hover:hover){.cursor-dot,.cursor-ring{display:block}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <svg width="80" height="80" viewBox="0 0 80 80">
+    <circle class="loader-ring" cx="40" cy="40" r="35" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" style="stroke-dasharray:300;stroke-dashoffset:300"/>
+    <circle class="loader-pulse" cx="40" cy="40" r="6" fill="#7C3AED" opacity="0"/>
+  </svg>
+  <p style="margin-top:1.5rem;font-size:.75rem;letter-spacing:.3em;color:#A855F7">LOADING</p>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 px-6 py-5 flex items-center justify-between" :class="navScrolled ? 'nav-scrolled' : 'nav-top'">
+    <a href="#hero" class="text-lg font-bold tracking-tight">Y<span class="text-purple-400">.</span></a>
+    <div class="hidden md:flex items-center gap-8">
+      <a v-for="link in navLinks" :key="link" :href="link.href" class="text-sm text-gray-400 hover:text-white transition-colors">{{ link.label }}</a>
+      <a href="#contact" class="btn-magnetic px-5 py-2 bg-purple-600 rounded-full text-sm font-medium"><span>Work With Me</span></a>
+    </div>
+    <button @click="mobileMenu=!mobileMenu" class="md:hidden text-white"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div v-show="mobileMenu" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8" @click="mobileMenu=false">
+    <a v-for="link in navLinks" :key="link" :href="link.href" @click="mobileMenu=false" class="text-2xl font-light text-gray-300 hover:text-white">{{ link.label }}</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <svg class="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="80" y2="0" stroke="rgba(168,85,247,.08)" stroke-width="1" vector-effect="non-scaling-stroke" shape-rendering="crispEdges"/>
+          <line x1="0" y1="0" x2="0" y2="80" stroke="rgba(168,85,247,.08)" stroke-width="1" vector-effect="non-scaling-stroke" shape-rendering="crispEdges"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+    <svg class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none" viewBox="0 0 1440 900">
+      <g style="animation:morph 12s ease-in-out infinite;transform-box:fill-box;transform-origin:center">
+        <path d="M200,300 Q400,100 600,300 T1000,300 T600,300 T200,300 Z" fill="url(#blobGrad1)" opacity=".3"/>
+        <animateTransform attributeName="transform" type="rotate" from="0 720 450" to="360 720 450" dur="30s" repeatCount="indefinite"/>
+      </g>
+      <defs><linearGradient id="blobGrad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C3AED" stop-opacity="0.4"/><stop offset="100%" stop-color="#A855F7" stop-opacity="0"/></linearGradient></defs>
+    </svg>
+    <div class="orb orb-1" style="width:600px;height:600px;background:radial-gradient(circle,#7C3AED,transparent);top:-10%;left:-10%;animation:orbFloat1 20s ease-in-out infinite"></div>
+    <div class="orb orb-2" style="width:500px;height:500px;background:radial-gradient(circle,#A855F7,transparent);bottom:-10%;right:-10%;animation:orbFloat2 25s ease-in-out infinite"></div>
+    <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-10" viewBox="0 0 800 800">
+      <circle cx="400" cy="400" r="300" fill="none" stroke="#7C3AED" stroke-width="1" stroke-dasharray="8 12"><animateTransform attributeName="transform" type="rotate" from="0 400 400" to="360 400 400" dur="60s" repeatCount="indefinite"/></circle>
+      <circle cx="400" cy="400" r="200" fill="none" stroke="#A855F7" stroke-width="0.5" stroke-dasharray="4 8"><animateTransform attributeName="transform" type="rotate" from="360 400 400" to="0 400 400" dur="45s" repeatCount="indefinite"/></circle>
+      <circle cx="400" cy="400" r="100" fill="none" stroke="#C084FC" stroke-width="0.5"><animateTransform attributeName="transform" type="rotate" from="0 400 400" to="360 400 400" dur="20s" repeatCount="indefinite"/></circle>
+    </svg>
+    <div class="relative z-10 text-center px-6 max-w-6xl mx-auto">
+      <div class="mb-8 reveal"><svg width="120" height="24" viewBox="0 0 120 24" class="mx-auto"><line x1="0" y1="12" x2="50" y2="12" stroke="#7C3AED" stroke-width="2"/><circle cx="60" cy="12" r="3" fill="#A855F7"/><line x1="70" y1="12" x2="120" y2="12" stroke="#A855F7" stroke-width="2"/></svg></div>
+      <h1 class="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none mb-6 reveal" style="animation-delay:.2s;opacity:1">YASHAR</h1>
+      <p class="text-lg md:text-xl text-gray-400 mb-3 reveal" style="animation-delay:.4s">Digital Creator · Developer · Creative Mind</p>
+      <p class="text-gray-500 max-w-xl mx-auto mb-10 reveal" style="animation-delay:.6s">I craft digital experiences that blur the line between technology and art. Building the future, one pixel at a time.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal" style="animation-delay:.8s">
+        <a href="#projects" class="btn-magnetic px-8 py-4 bg-purple-600 rounded-full text-sm font-semibold tracking-wide flex items-center gap-2"><span>Explore My World</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+        <a href="#contact" class="btn-outline btn-magnetic px-8 py-4 rounded-full text-sm font-semibold tracking-wide"><span class="text-white">Get In Touch</span></a>
+      </div>
+      <div class="mt-20 flex flex-col items-center gap-2 scroll-indicator reveal" style="animation-delay:1.2s"><span class="text-xs text-gray-500 tracking-widest">SCROLL</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="1.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px"><path d="M0,30 Q180,0 360,30 T720,30 T1080,30 T1440,30 L1440,60 L0,60 Z" fill="#050505"/><path d="M0,30 Q360,60 720,30 T1440,30" fill="none" stroke="#7C3AED" stroke-width="0.5" opacity="0.3"/></svg></div>
+
+  <!-- ABOUT -->
+  <section id="about" class="relative py-32 px-6 noise">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="section-tag reveal">Who I Am</span>
+          <h2 class="section-title reveal">About Me</h2>
+          <p class="text-gray-400 leading-relaxed mb-8 reveal">I'm a passionate digital creator with a deep love for building things that push boundaries. Combining code, design, and storytelling to create unforgettable experiences.</p>
+          <p class="text-gray-500 leading-relaxed mb-10 reveal">With years of experience in web development, UI/UX design, and creative technology, I bring ideas to life with precision and elegance.</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div v-for="(trait,i) in traits" :key="i" class="skill-card reveal-scale" :style="`animation-delay:${i*0.1}s`">
+              <div class="flex items-center gap-3 mb-2"><div class="w-8 h-8 rounded-lg bg-purple-900/50 flex items-center justify-center"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#A855F7" stroke-width="1.5"><path d="M2 8h12M8 2v12"/><circle cx="8" cy="8" r="3"/></svg></div><span class="text-sm font-semibold">{{ trait.label }}</span></div><p class="text-xs text-gray-500">{{ trait.desc }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="relative flex items-center justify-center">
+          <svg class="w-full max-w-md opacity-60" viewBox="0 0 400 400">
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#7C3AED" stroke-width="0.5" opacity="0.3"/>
+            <circle cx="200" cy="200" r="140" fill="none" stroke="#A855F7" stroke-width="0.5" opacity="0.4"/>
+            <circle cx="200" cy="200" r="100" fill="none" stroke="#C084FC" stroke-width="1" opacity="0.5"><animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="20s" repeatCount="indefinite"/></circle>
+            <path d="M200 60 L200 340 M60 200 L340 200" stroke="#7C3AED" stroke-width="0.5" opacity="0.2"/>
+            <path d="M80 80 L320 320 M320 80 L80 320" stroke="#A855F7" stroke-width="0.5" opacity="0.2"/>
+            <circle cx="200" cy="200" r="20" fill="#7C3AED" opacity="0.3"/>
+            <circle cx="200" cy="200" r="8" fill="#C084FC"/>
+            <circle r="4" fill="#A855F7" opacity="0.8"><animateMotion dur="8s" repeatCount="indefinite" path="M200,60 a140,140 0 1,1 -0.1,0"/></circle>
+            <circle r="3" fill="#C084FC" opacity="0.6"><animateMotion dur="12s" repeatCount="indefinite" path="M200,60 a140,140 0 1,0 -0.1,0"/></circle>
+          </svg>
+          <div class="absolute -bottom-4 -right-4 w-32 h-32 rounded-2xl bg-gradient-to-br from-purple-900/40 to-transparent blur-2xl"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><svg viewBox="0 0 1440 80" preserveAspectRatio="none" style="display:block;width:100%;height:80px"><path d="M0,40 C240,80 480,0 720,40 C960,80 1200,0 1440,40 L1440,80 L0,80 Z" fill="#050505"/><path d="M0,40 C360,0 720,80 1080,40 C1260,10 1380,50 1440,40" fill="none" stroke="#A855F7" stroke-width="0.5" opacity="0.3"/></svg></div>
+
+  <!-- SKILLS -->
+  <section id="skills" class="relative py-32 px-6">
+    <div class="max-w-6xl mx-auto text-center">
+      <span class="section-tag reveal">What I Do</span>
+      <h2 class="section-title reveal">Skills & Expertise</h2>
+      <p class="section-desc mx-auto mb-16 reveal">A curated collection of disciplines I've mastered through years of dedication.</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+        <div v-for="(skill,i) in skills" :key="i" class="skill-card reveal-scale" :style="`animation-delay:${i*0.08}s`">
+          <div class="w-12 h-12 rounded-xl bg-purple-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="#A855F7" stroke-width="1.5" v-html="skill.path"></svg>
+          </div>
+          <h3 class="text-sm font-semibold mb-1">{{ skill.label }}</h3>
+          <p class="text-xs text-gray-500">{{ skill.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px"><path d="M0,30 Q360,60 720,30 T1440,30" fill="none" stroke="#7C3AED" stroke-width="1" opacity="0.2"/><circle cx="720" cy="30" r="6" fill="#7C3AED" opacity="0.5"><animate attributeName="cy" values="30;20;30" dur="4s" repeatCount="indefinite"/></circle></svg></div>
+
+  <!-- QUOTE -->
+  <section class="relative py-32 px-6 noise overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-900/10 to-transparent"></div>
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+      <span class="section-tag reveal">Perspective</span>
+      <h2 class="quote-text mb-6 reveal" style="animation-delay:.2s">Building ideas<br>that don't exist yet.</h2>
+      <svg class="w-48 h-24 mx-auto mb-8 reveal" viewBox="0 0 200 100"><path d="M20,50 Q50,20 100,50 Q150,80 180,50" fill="none" stroke="#7C3AED" stroke-width="1" opacity="0.5"><animate attributeName="d" values="M20,50 Q50,20 100,50 Q150,80 180,50;M20,50 Q50,80 100,50 Q150,20 180,50;M20,50 Q50,20 100,50 Q150,80 180,50" dur="6s" repeatCount="indefinite"/></svg>
+      <p class="text-gray-500 max-w-lg mx-auto reveal" style="animation-delay:.6s">Every project is an opportunity to explore uncharted territory and create something truly meaningful.</p>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><svg viewBox="0 0 1440 80" preserveAspectRatio="none" style="display:block;width:100%;height:80px"><defs><linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M0,40 Q180,0 360,40 T720,40 T1080,40 T1440,40 L1440,80 L0,80 Z" fill="url(#waveGrad)" opacity="0.15"/></svg></div>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="relative py-32 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
+        <div><span class="section-tag reveal">Selected Work</span><h2 class="section-title reveal">Featured Projects</h2></div>
+        <p class="text-gray-500 mt-4 md:mt-0 max-w-sm reveal">A selection of recent work showcasing my passion for innovation and craft.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="md:row-span-2 project-card reveal-scale" style="animation-delay:.1s">
+          <div class="aspect-[4/3] md:aspect-auto md:h-[500px] bg-gradient-to-br from-purple-900/50 to-black relative overflow-hidden">
+            <svg class="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 600 400"><defs><linearGradient id="projGrad1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C3AED"/><stop offset="100%" stop-color="#050505"/></linearGradient></defs><circle cx="300" cy="200" r="150" fill="url(#projGrad1)"/><circle cx="300" cy="200" r="100" fill="none" stroke="#A855F7" stroke-width="0.5"/><circle cx="300" cy="200" r="50" fill="none" stroke="#C084FC" stroke-width="1"/></svg>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+          </div>
+          <div class="p-8">
+            <span class="text-xs text-purple-400 font-medium tracking-wider uppercase">Platform</span>
+            <h3 class="text-2xl font-bold mt-1 mb-3">Nebula</h3>
+            <p class="text-gray-400 mb-4">A next-generation creative platform that brings together artists, developers, and visionaries from around the world.</p>
+            <div class="flex flex-wrap gap-2 mb-4"><span class="px-3 py-1 text-xs rounded-full bg-purple-900/50 text-purple-300 border border-purple-800/50">Vue.js</span><span class="px-3 py-1 text-xs rounded-full bg-purple-900/50 text-purple-300 border border-purple-800/50">Node.js</span><span class="px-3 py-1 text-xs rounded-full bg-purple-900/50 text-purple-300 border border-purple-800/50">PostgreSQL</span></div>
+            <a href="#" class="btn-magnetic inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors text-sm font-medium"><span>View Project</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          </div>
+        </div>
+        <div class="project-card reveal-scale" style="animation-delay:.3s">
+          <div class="aspect-video bg-gradient-to-br from-purple-900/40 to-black overflow-hidden relative"><svg class="absolute inset-0 w-full h-full opacity-15" viewBox="0 0 400 225"><rect x="50" y="50" width="300" height="125" rx="8" fill="none" stroke="#7C3AED" stroke-width="0.5" stroke-dasharray="4 4"><animate attributeName="stroke-dashoffset" from="0" to="-8" dur="2s" repeatCount="indefinite"/></rect><circle cx="200" cy="112" r="30" fill="none" stroke="#A855F7" stroke-width="1"/></svg></div>
+          <div class="p-6"><span class="text-xs text-purple-400 font-medium tracking-wider uppercase">SaaS</span><h3 class="text-lg font-bold mt-1 mb-2">Lumen</h3><p class="text-gray-500 text-sm mb-3">A data visualization dashboard with real-time analytics and beautiful interactive charts.</p><a href="#" class="btn-magnetic inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors text-sm font-medium"><span>View Project</span><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a></div>
+        </div>
+        <div class="project-card reveal-scale" style="animation-delay:.5s">
+          <div class="aspect-video bg-gradient-to-br from-purple-900/40 to-black overflow-hidden relative"><svg class="absolute inset-0 w-full h-full opacity-15" viewBox="0 0 400 225"><path d="M0,112 Q100,60 200,112 Q300,164 400,112" fill="none" stroke="#A855F7" stroke-width="1"/><path d="M0,140 Q100,90 200,140 Q300,190 400,140" fill="none" stroke="#C084FC" stroke-width="0.5" opacity="0.5"/></svg></div>
+          <div class="p-6"><span class="text-xs text-purple-400 font-medium tracking-wider uppercase">App</span><h3 class="text-lg font-bold mt-1 mb-2">Flux</h3><p class="text-gray-500 text-sm mb-3">An immersive audio visualizer that transforms sound into mesmerizing waveforms.</p><a href="#" class="btn-magnetic inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors text-sm font-medium"><span>View Project</span><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIVIDER -->
+  <div class="section-divider"><svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="display:block;width:100%;height:60px"><path d="M0,30 C120,10 240,50 360,30 C480,10 600,50 720,30 C840,10 960,50 1080,30 C1200,10 1320,50 1440,30 L1440,60 L0,60 Z" fill="#050505"/></svg></div>
+
+  <!-- CONTACT -->
+  <section id="contact" class="relative py-32 px-6">
+    <div class="max-w-4xl mx-auto text-center">
+      <span class="section-tag reveal">Get In Touch</span>
+      <h2 class="section-title reveal" style="animation-delay:.1s">Let's Create Something Extraordinary</h2>
+      <p class="text-gray-400 mb-12 reveal" style="animation-delay:.2s">Have a project in mind or just want to say hello? I'd love to hear from you.</p>
+      <form @submit.prevent="submitContact" class="max-w-lg mx-auto space-y-6 reveal" style="animation-delay:.3s">
+        <div class="text-left"><label class="text-sm text-gray-400 mb-2 block">Name</label><input type="text" v-model="form.name" placeholder="Your name" class="w-full bg-purple-900/20 border border-purple-900/50 rounded-xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all"></div>
+        <div class="text-left"><label class="text-sm text-gray-400 mb-2 block">Email</label><input type="email" v-model="form.email" placeholder="your@email.com" class="w-full bg-purple-900/20 border border-purple-900/50 rounded-xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all"></div>
+        <div class="text-left"><label class="text-sm text-gray-400 mb-2 block">Message</label><textarea v-model="form.message" rows="4" placeholder="Tell me about your project..." class="w-full bg-purple-900/20 border border-purple-900/50 rounded-xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all resize-none"></textarea></div>
+        <button type="submit" class="btn-magnetic w-full px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-xl text-sm font-semibold tracking-wide transition-colors flex items-center justify-center gap-2"><span>Send Message</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
+      </form>
+      <div class="mt-20 flex items-center justify-center gap-6 reveal">
+        <a v-for="soc in socials" :key="soc.label" :href="soc.href" class="social-icon group" :aria-label="soc.label">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-gray-400 group-hover:text-purple-400 transition-colors" fill="currentColor" v-html="soc.svg"></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-12 px-6 border-t border-purple-900/20">
+    <div class="max-w-7xl mx-auto flex flex-col items-center justify-center gap-6 text-center">
+      <div class="flex items-center justify-center gap-3"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#7C3AED" stroke-width="1"/><circle cx="12" cy="12" r="4" fill="#A855F7"/></svg><span class="text-sm text-gray-500">&copy; 2026 Yashar. All rights reserved.</span></div>
+      <svg class="w-32 h-12 opacity-20 mx-auto" viewBox="0 0 128 48"><path d="M0,24 Q32,0 64,24 Q96,48 128,24" fill="none" stroke="#7C3AED" stroke-width="0.5"><animate attributeName="d" values="M0,24 Q32,0 64,24 Q96,48 128,24;M0,24 Q32,48 64,24 Q96,0 128,24;M0,24 Q32,0 64,24 Q96,48 128,24" dur="6s" repeatCount="indefinite"/></svg>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+const navLinks = [{label:'About',href:'#about'},{label:'Skills',href:'#skills'},{label:'Projects',href:'#projects'},{label:'Contact',href:'#contact'}];
+const traits = [{label:'Creative',desc:'Innovative thinking'},{label:'Technical',desc:'Full-stack expert'},{label:'Detail Oriented',desc:'Precision focused'},{label:'Collaborative',desc:'Team first mindset'}];
+const skills = [
+  {label:'Web Dev',desc:'Frontend & Backend',path:'<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>'},
+  {label:'UI/UX',desc:'User-Centered',path:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/>'},
+  {label:'3D Design',desc:'Spatial & Motion',path:'<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>'},
+  {label:'Motion',desc:'Animation & Video',path:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6" stroke="#A855F7"/><line x1="12" y1="18" x2="12" y2="22" stroke="#A855F7"/>'},
+  {label:'Gaming',desc:'Interactive Worlds',path:'<polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8"/>'},
+  {label:'Content',desc:'Digital Strategy',path:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'}
+];
+const socials = [
+  {label:'Instagram',href:'#',viewBox:'0 0 24 24',svg:'<rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>'},
+  {label:'GitHub',href:'#',viewBox:'0 0 24 24',svg:'<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>'},
+  {label:'Discord',href:'#',viewBox:'0 0 24 24',svg:'<path fill="currentColor" d="M20.222 4.518a19.793 19.793 0 0 0-4.885-1.515.074.074 0 0 0-.079.037 13.683 13.683 0 0 0-.606 1.245 18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.245.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.664 4.518a.07.07 0 0 0-.032.027C.533 9.05-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.245.197.372.29a.077.077 0 0 1-.006.128 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>'},
+  {label:'Steam',href:'#',viewBox:'0 0 24 24',svg:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 10h6v6H9z"/>'},
+  {label:'Email',href:'mailto:hello@yashar.dev',viewBox:'0 0 24 24',svg:'<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="22,6 12,13 2,6"/>'}
+];
+
+const app = createApp({
+  setup() {
+    const navScrolled = ref(false);
+    const mobileMenu = ref(false);
+    const form = ref({ name:'', email:'', message:'' });
+    let dotX = 0, dotY = 0, ringX = 0, ringY = 0;
+    let mouseX = 0, mouseY = 0;
+
+    const onScroll = () => { navScrolled.value = window.scrollY > 50; };
+    const onMouseMove = (e) => { mouseX = e.clientX; mouseY = e.clientY; };
+    const animateCursor = () => {
+      dotX += (mouseX - dotX) * 0.15;
+      dotY += (mouseY - dotY) * 0.15;
+      const dot = document.getElementById('cursorDot');
+      const ring = document.getElementById('cursorRing');
+      if(dot){ dot.style.left = dotX+'px'; dot.style.top = dotY+'px'; }
+      ringX += (mouseX - ringX) * 0.1;
+      ringY += (mouseY - ringY) * 0.1;
+      if(ring){ ring.style.left = ringX+'px'; ring.style.top = ringY+'px'; }
+      requestAnimationFrame(animateCursor);
+    };
+
+    const onCardMouseMove = (e) => {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width/2;
+      const y = e.clientY - rect.top - rect.height/2;
+      btn.style.transform = `translate(${x*0.15}px, ${y*0.15}px)`;
+    };
+    const onCardMouseLeave = (e) => { e.currentTarget.style.transform = 'translate(0,0)'; };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('active'); });
+    }, { threshold:0.1, rootMargin:'0px 0px -50px 0px' });
+
+    const submitContact = () => { alert(`Thank you, ${form.value.name || 'there'}! I'll get back to you soon.`); form.value = { name:'', email:'', message:'' }; };
+
+    onMounted(() => {
+      window.addEventListener('scroll', onScroll);
+      window.addEventListener('mousemove', onMouseMove);
+      requestAnimationFrame(animateCursor);
+      document.querySelectorAll('.reveal,.reveal-scale').forEach(el => observer.observe(el));
+      document.querySelectorAll('.btn-magnetic').forEach(el => {
+        el.addEventListener('mousemove', onCardMouseMove);
+        el.addEventListener('mouseleave', onCardMouseLeave);
+      });
+      document.querySelectorAll('a, button, .skill-card, input, textarea').forEach(el => {
+        el.addEventListener('mouseenter', () => { const r = document.getElementById('cursorRing'); if(r) r.classList.add('hover'); });
+        el.addEventListener('mouseleave', () => { const r = document.getElementById('cursorRing'); if(r) r.classList.remove('hover'); });
+      });
+      setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 1500);
+    });
+    onUnmounted(() => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('mousemove', onMouseMove);
+      observer.disconnect();
+    });
+
+    return { navLinks, traits, skills, socials, navScrolled, mobileMenu, form, submitContact };
+  }
+});
+app.mount('#app');
+</script>
+</body>
+</html>
